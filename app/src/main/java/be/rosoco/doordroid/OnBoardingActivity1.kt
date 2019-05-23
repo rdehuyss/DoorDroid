@@ -16,10 +16,10 @@ import butterknife.OnClick
 class OnBoardingActivity1 : AppCompatActivity() {
 
     @BindView(R.id.textView2)
-    private lateinit var textView: TextView
+    lateinit var textView: TextView
 
     @BindView(R.id.button_next)
-    private lateinit var button: Button
+    lateinit var button: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +39,6 @@ class OnBoardingActivity1 : AppCompatActivity() {
     }
 
     fun isSIPSupported(): Boolean {
-        return SipManager.isVoipSupported(this) && SipManager.isApiSupported(this);
+        return SipManager.isVoipSupported(this) && SipManager.isApiSupported(this)
     }
 }

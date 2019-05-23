@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">DoorDroid</string>
+    <string name="settings">be.rosoco.doordroid.settings</string>
+    <string name="onboarding_intro">Welcome to DoorDroid, the smart Doorbell for HomeAssistant.\nFor this app to work, you will need a working SIP server like Asterisk. We will also ask for some permissions so that this phone can make SIP calls. Please accept them all. Last but not least, we will need some HomeAssistant info.</string>
+    <string name="onboarding_intro_no_sip">Welcome to DoorDroid, the smart Doorbell for HomeAssistant.\nWe\'re sorry to say that this device does not support SIP calling and DoorDroid will not work on it. Hopefully you will find another use for this Android mobile.</string>
+    <string name="onboarding_btn_next">next</string>
+    <string name="onboarding_sip_username">SIP username</string>
+    <string name="onboarding_sip_username_desc">SIP username (the part before the @, without sip)</string>
+    <string name="onboarding_sip_password">SIP password</string>
+    <string name="onboarding_sip_password_desc">SIP password</string>
+    <string name="onboarding_sip_server">SIP server</string>
+    <string name="onboarding_sip_server_desc">The hostname or the ip-address of your server, including port (e.g.: 192.168.1.30:5060)</string>
+    <string name="onboarding_homeassistant_server">HomeAssistant server</string>
+    <string name="onboarding_homeassistant_server_desc">HomeAssistant hostname or ip-address including port (e.g.: 192.168.1.2:8123)</string>
+    <string name="onboarding_homeassistant_token">HomeAssistant token</string>
+    <string name="onboarding_homeassistant_token_desc">A long lasting HomeAssistant token</string>
+    <string name="onboarding_homeassistant_doorbell_entity">Doorbell entity</string>
+    <string name="onboarding_homeassistant_doorbell_entity_desc">The name of the HomeAssistant boolean doorbell entity</string>
+    <string name="onboarding_homeassistant_sip_username">HomeAssistant SIP username</string>
+    <string name="onboarding_homeassistant_sip_username_desc">The SIP username of HomeAssistant which will be called by default</string>
+    <string name="all_settings_required">All settings are mandatory</string>
+    <string name="camera_front_facing">Front camera</string>
+    <string name="camera_back_facing">Rear camera</string>
+    <string name="camera_external">External camera</string>
+</resources>

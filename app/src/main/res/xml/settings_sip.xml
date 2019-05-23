@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_height="fill_parent"
+                  android:layout_width="fill_parent">
+    <EditTextPreference android:title="@string/onboarding_sip_server"
+                        android:key="sip_server"
+                        app:iconSpaceReserved="false"
+                        android:summary="@string/onboarding_sip_server_desc"></EditTextPreference>
+    <EditTextPreference android:title="@string/onboarding_sip_username"
+                        android:key="sip_username"
+                        app:iconSpaceReserved="false"
+                        android:summary="@string/onboarding_sip_username_desc"></EditTextPreference>
+    <EditTextPreference android:title="@string/onboarding_sip_password"
+                        app:iconSpaceReserved="false"
+                        android:key="sip_password"
+                        android:summary="@string/onboarding_sip_password_desc"></EditTextPreference>
+</PreferenceScreen>

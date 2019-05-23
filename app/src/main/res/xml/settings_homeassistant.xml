@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_height="fill_parent"
+                  android:layout_width="fill_parent">
+    <EditTextPreference android:title="@string/onboarding_homeassistant_server"
+                        android:key="hass_server"
+                        app:iconSpaceReserved="false"
+                        android:summary="@string/onboarding_homeassistant_server_desc"></EditTextPreference>
+    <EditTextPreference android:title="@string/onboarding_homeassistant_token"
+                        android:key="hass_token"
+                        app:iconSpaceReserved="false"
+                        android:summary="@string/onboarding_homeassistant_token_desc"></EditTextPreference>
+    <EditTextPreference android:title="@string/onboarding_homeassistant_doorbell_entity"
+                        android:key="hass_doorbell_entity"
+                        app:iconSpaceReserved="false"
+                        android:summary="@string/onboarding_homeassistant_doorbell_entity_desc"></EditTextPreference>
+    <EditTextPreference android:title="@string/onboarding_homeassistant_sip_username"
+                        android:key="hass_sip_username"
+                        app:iconSpaceReserved="false"
+                        android:summary="@string/onboarding_homeassistant_sip_username_desc"></EditTextPreference>
+</PreferenceScreen>

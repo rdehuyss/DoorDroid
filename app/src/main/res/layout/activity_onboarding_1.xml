@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent">
+    <TextView
+            android:text="@string/app_name"
+            android:layout_width="324dp"
+            android:layout_height="54dp"
+            android:id="@+id/textView1" app:layout_constraintStart_toStartOf="@+id/textView2"
+            android:textSize="32sp"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="35dp"/>
+    <TextView
+            android:text="@string/onboarding_intro"
+            android:layout_width="333dp"
+            android:layout_height="133dp"
+            android:id="@+id/textView2" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="104dp"/>
+    <Button
+            android:text="@string/onboarding_btn_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_next"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="280dp"
+            app:layout_constraintEnd_toEndOf="@+id/textView2"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

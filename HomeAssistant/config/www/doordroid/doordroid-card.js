@@ -1,5 +1,4 @@
-class DoorDroidCard extends HTMLElement {
-
+class DoorPiCard extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -7,11 +6,12 @@ class DoorDroidCard extends HTMLElement {
 
     set hass(hass) {
         if(this.notYetInitialized()) {
-            this.initJsSIPIfNecessary();
+            this.initJsSIPIfNecessary(hass);
             this.initCameraView(hass);
         } else if(this.cameraEntityHasNewAccessToken(hass)) {
             this.updateCameraView(hass);
         }
+        this.initDoorbellRinging(hass)
     }
 
     setConfig(config) {
@@ -39,10 +39,19 @@ class DoorDroidCard extends HTMLElement {
             ha-card {
                 /* sample css */
             }
-            .button {
+            .buttons {
                 overflow: auto;
                 padding: 16px;
                 text-align: right;
+            } 
+            .ring-buttons {
+                float: left;
+                background: var(--paper-dialog-background-color, var(--primary-background-color));
+                color: var(--paper-dialog-color, var(--primary-text-color));
+            }
+            #cameraview img{
+                object-fit: cover;
+                height: 400px;
             }
             mwc-button {
                 margin-right: 16px;
@@ -51,21 +60,25 @@ class DoorDroidCard extends HTMLElement {
         content.innerHTML = `
         <div id='cameraview'>
             <p style="padding: 16px">Initializing SIP connection and webcam view</p>
+            <audio id='audio-player'></audio>
         </div>
-        <div class='button'>
+        <div class='buttons'>
+            <div class="ring-buttons">
+                <mwc-button dense id='bell-everywhere'><ha-icon class="mdc-button__icon" icon="mdi:bell-ring-outline"></ha-icon></mwc-button>
+                <mwc-button dense id='bell-firstfloor'><ha-icon class="mdc-button__icon" icon="mdi:bell-outline"></ha-icon></mwc-button>
+                <mwc-button dense id='bell-off'><ha-icon class="mdc-button__icon" icon="mdi:bell-off-outline"></ha-icon></mwc-button>
+            </div>
             <mwc-button raised id='btn-open-door'>` + 'Open Door' + `</mwc-button>
-            <mwc-button style='display:none' raised id='btn-accept-call'>` + 'Accept call' + `</mwc-button>
-            <mwc-button style='display:none' raised id='btn-reject-call'>` + 'Reject call' + `</mwc-button>
-            <mwc-button style='display:none' raised id='btn-end-call'>` + 'End call' + `</mwc-button>
+            <mwc-button style='display:none' raised id='btn-accept-call'>` + 'Accept' + `</mwc-button>
+            <mwc-button style='display:none' raised id='btn-reject-call'>` + 'Reject' + `</mwc-button>
+            <mwc-button style='display:none' raised id='btn-end-call'>` + 'End' + `</mwc-button>
         </div>
         `;
-        card.header = 'Doorbell'
+        card.header = ''
         card.appendChild(content);
         card.appendChild(style);
         root.appendChild(card);
     }
-
-
 
     // The height of your card. Home Assistant uses this to automatically
     // distribute all cards over the available columns.
@@ -77,8 +90,8 @@ class DoorDroidCard extends HTMLElement {
         return window.JsSIP && !this.sipPhone && this.config;
     }
 
-    initJsSIPIfNecessary() {
-        console.log('Loading SIPPhone')
+    initJsSIPIfNecessary(hass) {
+        console.log('Loading SIPPhone');
 
         let socket = new JsSIP.WebSocketInterface(this.config.sip_settings.sip_wss_url);
         let configuration = {
@@ -90,12 +103,7 @@ class DoorDroidCard extends HTMLElement {
         this.sipPhone.start()
 
 
-        let callOptions = {
-            mediaConstraints: {
-                audio: true, // only audio calls
-                video: false
-            }
-            };
+        let callOptions = { mediaConstraints: { audio: true, video: false } };// only audio calls
 
         this.sipPhone.on("registered", () => console.log('SIPPhone registered with SIP Server'));
 
@@ -117,15 +125,18 @@ class DoorDroidCard extends HTMLElement {
 
                 });
                 session.on("confirmed", () => console.log('call confirmed'));
-                session.on("ended", () => {console.log('call ended'); droidCard.cleanup()});
-                session.on("failed", () =>{console.log('call failed'); droidCard.cleanup()});
-                session.on("addstream", (e) => {
-                    console.log('adding audiostream')
-                    // set remote audio stream (to listen to remote audio)
-                    // remoteAudio is <audio> element on page
-                    const remoteAudio = document.createElement('audio');
-                    remoteAudio.src = window.URL.createObjectURL(e.stream);
-                    remoteAudio.play();
+                session.on("ended", () => {console.log('call ended'); droidCard.cleanup(hass)});
+                session.on("failed", () =>{console.log('call failed'); droidCard.cleanup(hass)});
+                session.on("peerconnection", () => {
+                    session.connection.addEventListener("addstream", (e) => {
+                        console.log('adding audiostream')
+                        // set remote audio stream (to listen to remote audio)
+                        // remoteAudio is <audio> element on page
+                        const remoteAudio = document.createElement('audio');
+                        //const remoteAudio = droidCard.getElementById('audio-player');
+                        remoteAudio.srcObject = e.stream;
+                        remoteAudio.play();
+                    })
                 });
                 
                 acceptCallBtn.addEventListener('click', () => session.answer(callOptions));
@@ -138,6 +149,7 @@ class DoorDroidCard extends HTMLElement {
     }
 
     initCameraView(hass) {
+        this.cameraViewerShownTimeout = window.setTimeout(() => this.isDoorPiNotShown() , 15000);
         const cameraView = this.getElementById('cameraview');
         const imgEl = document.createElement('img');
         const camera_entity = this.config.camera_entity;
@@ -159,6 +171,9 @@ class DoorDroidCard extends HTMLElement {
     }
 
     cameraEntityHasNewAccessToken(hass) {
+        clearTimeout(this.cameraViewerShownTimeout);
+        this.cameraViewerShownTimeout = window.setTimeout(() => this.isDoorPiNotShown() , 15000);
+
         if(!this.sipPhone) return false;
         const old_access_token = this.access_token;
         const new_access_token = hass.states[this.config.camera_entity].attributes['access_token'];
@@ -166,7 +181,45 @@ class DoorDroidCard extends HTMLElement {
         return old_access_token !== new_access_token;
     }
 
-    cleanup() {
+    initDoorbellRinging(hass) {
+        this.setupBellRingingButton(hass, 'everywhere', 'firstfloor');
+        this.setupBellRingingButton(hass, 'firstfloor', 'off');
+        this.setupBellRingingButton(hass, 'off', 'everywhere');
+    }
+
+    setupBellRingingButton(hass, where, next) {
+        let btn = this.shadowRoot.querySelector(`#bell-${where}`);
+
+        if(hass.states['input_select.doorbell'].state == `ring-${where}`) {
+            btn.style.display = 'inline-flex'; 
+        } else {
+            btn.style.display = 'none';
+        }
+        btn.addEventListener('click', () => hass.callService('input_select', 'select_option', { entity_id: 'input_select.doorbell', option: `ring-${next}`}));
+    }
+
+    isDoorPiNotShown() {
+        const imgEl = this.shadowRoot.querySelector('#cameraview img');
+        if(!this.isVisible(imgEl)) {
+            this.stopCameraStreaming();
+        }
+    }
+
+    stopCameraStreaming() {
+        console.log('Stopping camera stream...');
+        const imgEl = this.shadowRoot.querySelector('#cameraview img');
+        imgEl.src = '';
+        this.access_token = undefined;
+    }
+
+    isVisible(el) {
+        if (!el.offsetParent && el.offsetWidth === 0 && el.offsetHeight === 0) {
+            return false;
+        }
+        return true;
+    }
+
+    cleanup(hass) {
         let acceptCallBtn = this.getElementById('btn-accept-call');
         let rejectCallBtn = this.getElementById('btn-reject-call');
         let endCallBtn = this.getElementById('btn-end-call');
@@ -185,6 +238,8 @@ class DoorDroidCard extends HTMLElement {
         let clonedEndCallBtn = endCallBtn.cloneNode(true)
         clonedEndCallBtn.style.display = 'none';
         endCallBtn.parentNode.replaceChild(clonedEndCallBtn, endCallBtn);
+
+        hass.callService('input_boolean', 'turn_off', { entity_id: 'input_boolean.doorbell' })
     }
     
 
@@ -193,4 +248,4 @@ class DoorDroidCard extends HTMLElement {
     }
 }
 
-customElements.define('doordroid-card', DoorDroidCard);
+customElements.define('doorpi-card', DoorPiCard);
